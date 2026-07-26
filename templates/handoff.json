@@ -1,0 +1,39 @@
+{
+  "node_id": "backend-login",
+  "repository_id": "app",
+  "status": "completed",
+  "summary": "Implemented POST /v1/auth/login",
+  "inputs_consumed": [
+    ".agent/handoffs/database-login.json"
+  ],
+  "files_changed": [
+    "internal/http/auth/login.go",
+    "internal/http/auth/login_test.go"
+  ],
+  "commit": "0123456789abcdef",
+  "patch": null,
+  "interfaces_created": [
+    "POST /v1/auth/login"
+  ],
+  "interfaces_changed": [],
+  "integration_changes": [],
+  "commands_run": [
+    {
+      "command": "go test ./internal/http/auth/...",
+      "exit_code": 0,
+      "result": "pass",
+      "evidence": "package output recorded in the node log"
+    }
+  ],
+  "acceptance_criteria": [
+    {
+      "criterion": "Invalid password returns HTTP 401",
+      "status": "passed",
+      "evidence": "TestLoginInvalidPassword"
+    }
+  ],
+  "assumptions": [],
+  "risks": [],
+  "blockers": [],
+  "follow_up": []
+}

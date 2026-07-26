@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "workflow": {
+    "id": "user-login",
+    "objective": "Implement user login",
+    "specification": ".agent/spec.md",
+    "created_at": "2026-07-26T12:00:00Z",
+    "repositories": {
+      "app": {
+        "path": "/workspace/project",
+        "base": "main",
+        "base_commit": "1111111111111111"
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "database-login",
+      "repository_id": "app",
+      "type": "implementation",
+      "agent": "database-owner",
+      "objective": "Implement the authentication lookup contract",
+      "depends_on": [],
+      "dependency_reasons": {},
+      "context": {
+        "specifications": [
+          ".agent/spec.md"
+        ],
+        "source_paths": [
+          "internal/store/auth"
+        ],
+        "dependency_artifacts": [],
+        "decisions": [
+          "DEC-001"
+        ]
+      },
+      "allowed_paths": [
+        "internal/store/auth/**",
+        "migrations/*login*"
+      ],
+      "forbidden_paths": [
+        "internal/http/**"
+      ],
+      "external_resources": [
+        "disposable-postgres:database-login"
+      ],
+      "acceptance_criteria": [
+        "Authentication lookup returns the accepted projection"
+      ],
+      "verification_commands": [
+        "go test ./internal/store/auth/..."
+      ],
+      "output_artifact": ".agent/handoffs/database-login.json",
+      "max_retries": 3,
+      "concurrency_group": "implementation-wave-1",
+      "workspace": {
+        "strategy": "git-worktree",
+        "path": "../worktrees/database-login",
+        "branch": "agent/database-login",
+        "base": "main"
+      }
+    },
+    {
+      "id": "backend-login",
+      "repository_id": "app",
+      "type": "implementation",
+      "agent": "go-backend",
+      "objective": "Implement the login HTTP endpoint",
+      "depends_on": [
+        "database-login"
+      ],
+      "dependency_reasons": {
+        "database-login": "Consumes the authentication repository interface and commit"
+      },
+      "context": {
+        "specifications": [
+          ".agent/spec.md"
+        ],
+        "source_paths": [
+          "internal/http/auth"
+        ],
+        "dependency_artifacts": [
+          ".agent/handoffs/database-login.json"
+        ],
+        "decisions": [
+          "DEC-001"
+        ]
+      },
+      "allowed_paths": [
+        "internal/http/auth/**"
+      ],
+      "forbidden_paths": [
+        "internal/store/**"
+      ],
+      "external_resources": [],
+      "acceptance_criteria": [
+        "Invalid password returns HTTP 401"
+      ],
+      "verification_commands": [
+        "go test ./internal/http/auth/..."
+      ],
+      "output_artifact": ".agent/handoffs/backend-login.json",
+      "max_retries": 3,
+      "concurrency_group": "implementation-wave-2",
+      "workspace": {
+        "strategy": "git-worktree",
+        "path": "../worktrees/backend-login",
+        "branch": "agent/backend-login",
+        "base": "main"
+      }
+    },
+    {
+      "id": "integration",
+      "repository_id": "app",
+      "type": "integration",
+      "agent": "integration-owner",
+      "objective": "Combine and verify the login implementation",
+      "depends_on": [
+        "database-login",
+        "backend-login"
+      ],
+      "dependency_reasons": {
+        "database-login": "Integrates the validated data-layer commit",
+        "backend-login": "Integrates the validated HTTP-layer commit"
+      },
+      "context": {
+        "specifications": [
+          ".agent/spec.md"
+        ],
+        "source_paths": [],
+        "dependency_artifacts": [
+          ".agent/handoffs/database-login.json",
+          ".agent/handoffs/backend-login.json"
+        ],
+        "decisions": [
+          "DEC-001"
+        ]
+      },
+      "allowed_paths": [
+        "internal/http/auth/routes.go"
+      ],
+      "forbidden_paths": [
+        "internal/store/auth/**",
+        "migrations/**"
+      ],
+      "external_resources": [
+        "disposable-postgres:integration"
+      ],
+      "acceptance_criteria": [
+        "All accepted login criteria pass in the integrated repository"
+      ],
+      "verification_commands": [
+        "go test ./..."
+      ],
+      "output_artifact": ".agent/handoffs/integration.json",
+      "max_retries": 3,
+      "concurrency_group": "integration",
+      "workspace": {
+        "strategy": "git-worktree",
+        "path": "../worktrees/integration",
+        "branch": "agent/integration",
+        "base": "main"
+      }
+    },
+    {
+      "id": "independent-review",
+      "repository_id": "app",
+      "type": "review",
+      "agent": "fresh-reviewer",
+      "objective": "Review the integrated result against the accepted specification",
+      "depends_on": [
+        "integration"
+      ],
+      "dependency_reasons": {
+        "integration": "Reviews the final diff and integration evidence"
+      },
+      "context": {
+        "specifications": [
+          ".agent/spec.md"
+        ],
+        "source_paths": [],
+        "dependency_artifacts": [
+          ".agent/handoffs/integration.json",
+          ".agent/reports/verification.md"
+        ],
+        "decisions": [
+          "DEC-001"
+        ]
+      },
+      "allowed_paths": [],
+      "forbidden_paths": [
+        "**"
+      ],
+      "external_resources": [],
+      "acceptance_criteria": [
+        "No blocking review finding remains"
+      ],
+      "verification_commands": [
+        "git diff --check"
+      ],
+      "output_artifact": ".agent/reports/review.json",
+      "max_retries": 1,
+      "concurrency_group": "review",
+      "workspace": null
+    }
+  ]
+}
