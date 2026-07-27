@@ -1,4 +1,4 @@
 interface:
   display_name: "Zen Workflow"
-  short_description: "Orchestrate dependency-aware engineering graphs"
-  default_prompt: "Use $zen-workflow to execute this complex engineering objective as an isolated, dependency-aware task graph."
+  short_description: "Use a focused loop or a minimal dependency graph"
+  default_prompt: "Use $zen-workflow for this engineering objective. Choose focused or graph mode using its gate, then execute and verify the work."
