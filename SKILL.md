@@ -1,6 +1,6 @@
 ---
 name: zen-workflow
-description: Use for complex engineering work that genuinely benefits from a dependency graph: multiple repositories, at least three independent non-overlapping deliverables, or high-risk work needing isolated implementation and review. Default to one focused loop.
+description: "Use for complex engineering work that genuinely benefits from a dependency graph: multiple repositories, at least three independent non-overlapping deliverables, or high-risk work needing isolated implementation and review. Default to one focused loop."
 ---
 
 # Zen Workflow
